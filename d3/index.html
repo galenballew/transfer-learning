@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+	body { font: 12px Arial;}
+
+	path {
+		/*stroke: steelblue;*/
+		stroke-width: 4;
+		fill: none;
+	}
+
+	.axis path,
+	.axis line {
+		fill: none;
+		stroke: grey;
+		stroke-width: 1;
+		shape-rendering: crispEdges;
+	}
+
+	.legend {
+		font-size: 16px;
+		font-weight: bold;
+		text-anchor: start;
+		}
+
+	.button {
+		position:absolute;
+		right:260px;
+		}
+
+</style>
+<body>
+
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>
+
+var	margin = {top: 30, right: 40, bottom: 70, left: 50},
+	width = 1000 - margin.left - margin.right,
+	height = 600 - margin.top - margin.bottom;
+
+var	x = d3.scale.linear().range([0, width]);
+var	y0 = d3.scale.linear().range([height, 0]);
+var	y1 = d3.scale.linear().range([height, 0]);
+
+var	xAxis = d3.svg.axis().scale(x)
+	.orient("bottom").ticks(10);
+
+var	yAxisLeft = d3.svg.axis().scale(y0)
+	.orient("left").ticks(20);
+
+var	yAxisRight = d3.svg.axis().scale(y1)
+	.orient("right").ticks(20);
+
+var	inception_val_line = d3.svg.line()
+	.x(function(d) { return x(d.epoch); })
+	.y(function(d) { return y0(d.inception_val); });
+var	inception_loss_line = d3.svg.line()
+	.x(function(d) { return x(d.epoch); })
+	.y(function(d) { return y1(d.inception_loss); });
+
+var	vgg_val_line = d3.svg.line()
+	.x(function(d) { return x(d.epoch); })
+	.y(function(d) { return y0(d.vgg_val); });
+var	vgg_loss_line = d3.svg.line()
+	.x(function(d) { return x(d.epoch); })
+	.y(function(d) { return y1(d.vgg_loss); });
+
+var	resnet_val_line = d3.svg.line()
+	.x(function(d) { return x(d.epoch); })
+	.y(function(d) { return y0(d.resnet_val); });
+var	resnet_loss_line = d3.svg.line()
+	.x(function(d) { return x(d.epoch); })
+	.y(function(d) { return y1(d.resnet_loss); });
+
+var	keras_val_line = d3.svg.line()
+	.x(function(d) { return x(d.epoch); })
+	.y(function(d) { return y0(d.keras_val); });
+var	keras_loss_line = d3.svg.line()
+	.x(function(d) { return x(d.epoch); })
+	.y(function(d) { return y1(d.keras_loss); });
+
+var	svg = d3.select("body")
+	.append("svg")
+		.attr("width", width + margin.left + margin.right)
+		.attr("height", height + margin.top + margin.bottom)
+	.append("g")
+		.attr("transform",
+		      "translate(" + margin.left + "," + margin.top + ")");
+var data = [
+{"epoch":"01","inception_val":0.52, "inception_loss": 1.43,
+              "vgg_val":0.56, "vgg_loss": 1.35,
+              "resnet_val":0.79, "resnet_loss": 0.70,
+              "keras_val":0.56, "keras_loss": 1.21},
+{"epoch":"02","inception_val":0.61, "inception_loss": 1.14,
+              "vgg_val":0.66, "vgg_loss": 1.03,
+              "resnet_val":0.87, "resnet_loss": 0.48,
+              "keras_val":0.63, "keras_loss": 1.06},
+{"epoch":"03","inception_val":0.65, "inception_loss": 1.04,
+              "vgg_val":0.70, "vgg_loss": 0.91,
+              "resnet_val":0.91, "resnet_loss": 0.35,
+              "keras_val":0.66, "keras_loss": 0.99},
+{"epoch":"04","inception_val":0.67, "inception_loss": 0.99,
+              "vgg_val":0.72, "vgg_loss": 0.81,
+              "resnet_val":0.93, "resnet_loss": 0.29,
+              "keras_val":0.67, "keras_loss": 0.93},
+{"epoch":"05","inception_val":0.67, "inception_loss": 0.96,
+              "vgg_val":0.73, "vgg_loss": 0.82,
+              "resnet_val":0.96, "resnet_loss": 0.23,
+              "keras_val":0.68, "keras_loss": 0.91},
+{"epoch":"06","inception_val":0.68, "inception_loss": 0.95,
+              "vgg_val":0.75, "vgg_loss": 0.75,
+              "resnet_val":0.97, "resnet_loss": 0.20,
+              "keras_val":0.69, "keras_loss": 0.91},
+{"epoch":"07","inception_val":0.68, "inception_loss": 0.94,
+              "vgg_val":0.74, "vgg_loss": 0.81,
+              "resnet_val":0.99, "resnet_loss": 0.14,
+              "keras_val":0.71, "keras_loss": 0.86},
+{"epoch":"08","inception_val":0.69, "inception_loss": 0.94,
+              "vgg_val":0.76, "vgg_loss": 0.72,
+              "resnet_val":0.99, "resnet_loss": 0.12,
+              "keras_val":0.71, "keras_loss": 0.85},
+{"epoch":"09","inception_val":0.69, "inception_loss": 0.93,
+              "vgg_val":0.77, "vgg_loss": 0.70,
+              "resnet_val":0.99, "resnet_loss": 0.11,
+              "keras_val":0.71, "keras_loss": 0.85},
+{"epoch":"10","inception_val":0.69, "inception_loss": 0.93,
+              "vgg_val":0.77, "vgg_loss": 0.73,
+              "resnet_val":1.0, "resnet_loss": 0.09,
+              "keras_val":0.71, "keras_loss": 0.87},
+
+];
+
+// Get the data
+data.forEach(function(d) {
+	d.epoch = +d.epoch;
+	d.inception_val = +d.inception_val;
+	d.inception_loss = +d.inception_loss;
+});
+
+// Scale the range of the data
+x.domain(d3.extent(data, function(d) { return d.epoch; }));
+y0.domain([0, 1.0]);
+y1.domain([0, 1.5]);
+
+svg.append("path")
+	.attr("class", "line")
+	.style("stroke", "red")
+	.attr("id", "InceptionV3_acc")
+	.attr("d", inception_val_line(data));
+svg.append("path")
+	.attr("class", "line")
+	.style("stroke", "red")
+	.attr("id", "InceptionV3_loss")
+	.attr("d", inception_loss_line(data));
+
+svg.append("path")
+	.attr("class", "line")
+	.style("stroke", "steelblue")
+	.attr("id", "VGG_acc")
+	.attr("d", vgg_val_line(data));
+svg.append("path")
+	.attr("class", "line")
+	.style("stroke", "steelblue")
+	.attr("id", "VGG_loss")
+	.attr("d", vgg_loss_line(data));
+
+svg.append("path")
+	.attr("class", "line")
+	.style("stroke", "green")
+	.attr("id", "ResNet_acc")
+	.attr("d", resnet_val_line(data));
+svg.append("path")
+	.attr("class", "line")
+	.style("stroke", "green")
+	.attr("id", "ResNet_loss")
+	.attr("d", resnet_loss_line(data));
+
+svg.append("path")
+	.attr("class", "line")
+	.style("stroke", "orange")
+	.attr("id", "Keras_acc")
+	.attr("d", keras_val_line(data));
+svg.append("path")
+	.attr("class", "line")
+	.style("stroke", "orange")
+	.attr("id", "Keras_loss")
+	.attr("d", keras_loss_line(data));
+
+
+// x axis
+svg.append("g")
+	.attr("class", "x axis")
+	.attr("transform", "translate(0," + height + ")")
+	.call(xAxis);
+
+// edit the Y Axis Left
+svg.append("g")
+	.attr("class", "y axis")
+	.style("fill", "black")
+	.attr("id", "blueAxis")
+	.call(yAxisLeft);
+
+svg.append("g")
+	.attr("class", "y axis")
+	.attr("transform", "translate(" + width + " ,0)")
+	.style("fill", "black")
+	.attr("id", "redAxis")
+	.call(yAxisRight);
+
+// inception lines
+svg.append("text")
+	.attr("x", 0)
+	.attr("y", height + margin.top + 10)
+	.attr("class", "legend")
+	.style("fill", "red")
+	.on("click", function(){
+		// Determine if current line is visible
+		var active   = InceptionV3_acc.active ? false : true,
+		  newOpacity = active ? 0 : 1;
+		// Hide or show the elements
+		d3.select("#InceptionV3_acc").style("opacity", newOpacity);
+		// Update whether or not the elements are active
+		InceptionV3_acc.active = active;
+	})
+	.text("InceptionV3 Validation Accuracy");
+svg.append("text")
+	.attr("x", 0)
+	.attr("y", height + margin.top + 30)
+	.attr("class", "legend")
+	.style("fill", "red")
+	.on("click", function(){
+		// Determine if current line is visible
+		var active   = InceptionV3_loss.active ? false : true ,
+		  newOpacity = active ? 0 : 1;
+		// Hide or show the elements
+		d3.select("#InceptionV3_loss").style("opacity", newOpacity);
+		// Update whether or not the elements are active
+		InceptionV3_loss.active = active;
+	})
+	.text("InceptionV3 Validation Loss");
+
+// vgg lines
+svg.append("text")
+	.attr("x", 260)
+	.attr("y", height + margin.top + 10)
+	.attr("class", "legend")
+	.style("fill", "steelblue")
+	.on("click", function(){
+		// Determine if current line is visible
+		var active   = VGG_acc.active ? false : true,
+		  newOpacity = active ? 0 : 1;
+		// Hide or show the elements
+		d3.select("#VGG_acc").style("opacity", newOpacity);
+		// Update whether or not the elements are active
+		VGG_acc.active = active;
+	})
+	.text("VGG Validation Accuracy");
+svg.append("text")
+	.attr("x", 260)
+	.attr("y", height + margin.top + 30)
+	.attr("class", "legend")
+	.style("fill", "steelblue")
+	.on("click", function(){
+		// Determine if current line is visible
+		var active   = VGG_loss.active ? false : true ,
+		  newOpacity = active ? 0 : 1;
+		// Hide or show the elements
+		d3.select("#VGG_loss").style("opacity", newOpacity);
+		// Update whether or not the elements are active
+		VGG_loss.active = active;
+	})
+	.text("VGG Validation Loss");
+
+// resnet text
+svg.append("text")
+	.attr("x", 470)
+	.attr("y", height + margin.top + 10)
+	.attr("class", "legend")
+	.style("fill", "green")
+	.on("click", function(){
+		// Determine if current line is visible
+		var active   = ResNet_acc.active ? false : true,
+		  newOpacity = active ? 0 : 1;
+		// Hide or show the elements
+		d3.select("#ResNet_acc").style("opacity", newOpacity);
+		// Update whether or not the elements are active
+		ResNet_acc.active = active;
+	})
+	.text("ResNet Validation Accuracy");
+svg.append("text")
+	.attr("x", 470)
+	.attr("y", height + margin.top + 30)
+	.attr("class", "legend")
+	.style("fill", "green")
+	.on("click", function(){
+		// Determine if current line is visible
+		var active   = ResNet_loss.active ? false : true ,
+		  newOpacity = active ? 0 : 1;
+		// Hide or show the elements
+		d3.select("#ResNet_loss").style("opacity", newOpacity);
+		// Update whether or not the elements are active
+		ResNet_loss.active = active;
+	})
+	.text("ResNet Validation Loss");
+
+	// keras text
+	svg.append("text")
+		.attr("x", 700)
+		.attr("y", height + margin.top + 10)
+		.attr("class", "legend")
+		.style("fill", "orange")
+		.on("click", function(){
+			// Determine if current line is visible
+			var active   = Keras_acc.active ? false : true,
+			  newOpacity = active ? 0 : 1;
+			// Hide or show the elements
+			d3.select("#Keras_acc").style("opacity", newOpacity);
+			// Update whether or not the elements are active
+			Keras_acc.active = active;
+		})
+		.text("Keras Validation Accuracy");
+	svg.append("text")
+		.attr("x", 700)
+		.attr("y", height + margin.top + 30)
+		.attr("class", "legend")
+		.style("fill", "orange")
+		.on("click", function(){
+			// Determine if current line is visible
+			var active   = Keras_loss.active ? false : true ,
+			  newOpacity = active ? 0 : 1;
+			// Hide or show the elements
+			d3.select("#Keras_loss").style("opacity", newOpacity);
+			// Update whether or not the elements are active
+			Keras_loss.active = active;
+		})
+		.text("Keras Validation Loss");
+
+</script>
+</body>
